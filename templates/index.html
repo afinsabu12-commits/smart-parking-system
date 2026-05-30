@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Parking System</title>
+</head>
+<body>
+
+    <h1>Smart Parking System</h1>
+
+    <h2>Available Parking Slots</h2>
+
+    <form action="/book" method="POST">
+
+        <label>Select Slot:</label>
+<label>Vehicle Number:</label>
+<input type="text" name="vehicle_number" required>
+
+<br><br>
+
+<label>Select Slot:</label>
+
+<select name="slot_id">
+
+{% for slot in slots %}
+    {% if slot[2] == "Available" %}
+        <option value="{{ slot[0] }}">
+            {{ slot[1] }}
+        </option>
+    {% endif %}
+{% endfor %}
+
+</select>
+
+        <br><br>
+
+        <button type="submit">
+            Book Slot
+        </button>
+
+    </form>
+
+    <br><br>
+
+    <a href="/admin">
+        Go to Admin Dashboard
+    </a>
+
+</body>
+</html>

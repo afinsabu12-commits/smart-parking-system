@@ -1,0 +1,163 @@
+from flask import Flask, render_template, request
+from flask_mysqldb import MySQL
+
+app = Flask(__name__)
+
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'afin@123'
+app.config['MYSQL_DB'] = 'smartparking'
+
+mysql = MySQL(app)
+
+@app.route('/')
+def home():
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT * FROM parking_slots")
+
+    slots = cur.fetchall()
+
+    cur.close()
+
+    return render_template(
+        'index.html',
+        slots=slots
+    )
+
+@app.route('/book', methods=['POST'])
+def book():
+
+    slot_id = request.form['slot_id']
+    vehicle_number = request.form['vehicle_number']
+
+    cur = mysql.connection.cursor()
+
+    cur.execute(
+        """
+        INSERT INTO bookings(user_id, slot_id, vehicle_number)
+        VALUES(%s,%s,%s)
+        """,
+        (1, slot_id, vehicle_number)
+    )
+
+    cur.execute(
+        "UPDATE parking_slots SET status='Booked' WHERE id=%s",
+        (slot_id,)
+    )
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    return render_template('success.html')
+@app.route('/add_slot', methods=['POST'])
+def add_slot():
+
+    slot = request.form['slot']
+
+    cur = mysql.connection.cursor()
+
+    cur.execute(
+        "INSERT INTO parking_slots(slot_number,status) VALUES(%s,%s)",
+        (slot, 'Available')
+    )
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    return admin()
+
+
+@app.route('/admin')
+def admin():
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT * FROM users")
+    users = cur.fetchall()
+
+    cur.execute("SELECT * FROM parking_slots")
+    slots = cur.fetchall()
+
+    cur.execute("SELECT * FROM bookings")
+    bookings = cur.fetchall()
+
+    cur.close()
+
+    return render_template(
+        'admin.html',
+        users=users,
+        slots=slots,
+        bookings=bookings
+    )
+@app.route('/delete_slot/<int:id>', methods=['POST'])
+def delete_slot(id):
+
+    cur = mysql.connection.cursor()
+
+    cur.execute(
+        "DELETE FROM parking_slots WHERE id=%s",
+        (id,)
+    )
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    return admin()
+
+@app.route('/update_slot/<int:id>', methods=['POST'])
+def update_slot(id):
+
+    cur = mysql.connection.cursor()
+
+    cur.execute(
+        "SELECT status FROM parking_slots WHERE id=%s",
+        (id,)
+    )
+
+    slot = cur.fetchone()
+
+    if slot[0] == "Available":
+        new_status = "Booked"
+    else:
+        new_status = "Available"
+
+    cur.execute(
+        "UPDATE parking_slots SET status=%s WHERE id=%s",
+        (new_status, id)
+    )
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    return admin()
+@app.route('/history')
+def history():
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("""
+        SELECT
+            bookings.id,
+            bookings.vehicle_number,
+            parking_slots.slot_number
+        FROM bookings
+        JOIN parking_slots
+        ON bookings.slot_id = parking_slots.id
+    """)
+
+    history = cur.fetchall()
+
+    cur.close()
+
+    return render_template(
+        'history.html',
+        history=history
+    )
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -1,0 +1,19 @@
+body{
+    background-color:#0f172a;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+.container{
+    margin-top:150px;
+}
+
+button{
+    padding:15px 30px;
+    border:none;
+    background-color:#2563eb;
+    color:white;
+    font-size:18px;
+    border-radius:10px;
+}
