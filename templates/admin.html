@@ -1,39 +1,207 @@
-<h2>Parking Slots</h2>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
 
-<table border="1">
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#0a0a0a;
+color:white;
+}
+
+nav{
+background:#111;
+padding:15px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 0 20px #00ffcc33;
+}
+
+nav h2{
+color:#00ffcc;
+}
+
+nav a{
+color:white;
+text-decoration:none;
+margin-left:20px;
+}
+
+.container{
+padding:40px;
+}
+
+.title{
+font-size:40px;
+margin-bottom:30px;
+color:#00ffcc;
+}
+
+.card{
+background:#151515;
+padding:25px;
+border-radius:15px;
+box-shadow:0 0 20px #00ffcc22;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th{
+background:#00ffcc;
+color:black;
+padding:15px;
+}
+
+td{
+padding:15px;
+border-bottom:1px solid #333;
+}
+
+.available{
+color:#00ff66;
+font-weight:bold;
+}
+
+.booked{
+color:#ff4444;
+font-weight:bold;
+}
+
+.btn{
+padding:10px 15px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.update{
+background:#00ffcc;
+}
+
+.delete{
+background:#ff4444;
+color:white;
+}
+
+.add-form{
+margin-bottom:30px;
+}
+
+input{
+padding:10px;
+border:none;
+border-radius:8px;
+margin-right:10px;
+}
+
+.add-btn{
+background:#00ff66;
+padding:10px 20px;
+border:none;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<nav>
+<h2>🚗 Smart Parking</h2>
+
+<div>
+<a href="/">Home</a>
+<a href="/admin">Admin</a>
+<a href="/history">History</a>
+</div>
+</nav>
+
+<div class="container">
+
+<h1 class="title">Admin Dashboard</h1>
+
+<form class="add-form" action="/add_slot" method="POST">
+<input type="text" name="slot" placeholder="Enter Slot Number">
+<button class="add-btn">Add Slot</button>
+</form>
+
+<div class="card">
+
+<table>
 
 <tr>
-    <th>ID</th>
-    <th>Slot Number</th>
-    <th>Status</th>
-    <th>Update</th>
-    <th>Delete</th>
+<th>ID</th>
+<th>Slot</th>
+<th>Status</th>
+<th>Update</th>
+<th>Delete</th>
 </tr>
 
 {% for slot in slots %}
 <tr>
 
-    <td>{{ slot[0] }}</td>
-    <td>{{ slot[1] }}</td>
-    <td>{{ slot[2] }}</td>
+<td>{{ slot[0] }}</td>
 
-    <td>
-        <form action="/update_slot/{{ slot[0] }}" method="POST">
-            <button type="submit">
-                Change Status
-            </button>
-        </form>
-    </td>
+<td>{{ slot[1] }}</td>
 
-    <td>
-        <form action="/delete_slot/{{ slot[0] }}" method="POST">
-            <button type="submit">
-                Delete
-            </button>
-        </form>
-    </td>
+<td>
+
+{% if slot[2] == "Available" %}
+<span class="available">{{ slot[2] }}</span>
+{% else %}
+<span class="booked">{{ slot[2] }}</span>
+{% endif %}
+
+</td>
+
+<td>
+
+<form action="/update_slot/{{ slot[0] }}" method="POST">
+
+<button class="btn update">
+Change Status
+</button>
+
+</form>
+
+</td>
+
+<td>
+
+<form action="/delete_slot/{{ slot[0] }}" method="POST">
+
+<button class="btn delete">
+Delete
+</button>
+
+</form>
+
+</td>
 
 </tr>
 {% endfor %}
 
 </table>
+
+</div>
+
+</div>
+
+</body>
+</html>

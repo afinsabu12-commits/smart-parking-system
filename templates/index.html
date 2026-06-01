@@ -2,48 +2,146 @@
 <html>
 <head>
     <title>Smart Parking System</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial,sans-serif;
+        }
+
+        body{
+            background:#0a0a0a;
+            color:white;
+        }
+
+        nav{
+            background:#111;
+            padding:15px 40px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            box-shadow:0 0 20px #00ffcc33;
+        }
+
+        nav h2{
+            color:#00ffcc;
+        }
+
+        nav a{
+            color:white;
+            text-decoration:none;
+            margin-left:20px;
+        }
+
+        .hero{
+            text-align:center;
+            padding:80px 20px;
+        }
+
+        .hero h1{
+            font-size:50px;
+            color:#00ffcc;
+        }
+
+        .hero p{
+            margin-top:15px;
+            color:#aaa;
+        }
+
+        .slots{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:20px;
+            padding:40px;
+        }
+
+        .card{
+            background:#151515;
+            padding:25px;
+            border-radius:15px;
+            transition:0.3s;
+            text-align:center;
+        }
+
+        .card:hover{
+            transform:translateY(-8px);
+            box-shadow:0 0 20px #00ffcc55;
+        }
+
+        .available{
+            color:#00ff66;
+        }
+
+        .booked{
+            color:#ff4444;
+        }
+
+        button{
+            margin-top:15px;
+            padding:10px 20px;
+            border:none;
+            border-radius:8px;
+            background:#00ffcc;
+            cursor:pointer;
+            font-weight:bold;
+        }
+    </style>
 </head>
+
 <body>
 
+<nav>
+    <h2>🚗 Smart Parking</h2>
+
+    <div>
+        <a href="/">Home</a>
+        <a href="/admin">Admin</a>
+        <a href="/history">History</a>
+    </div>
+</nav>
+
+<div class="hero">
     <h1>Smart Parking System</h1>
+    <p>Find and book parking slots instantly</p>
+</div>
 
-    <h2>Available Parking Slots</h2>
-
-    <form action="/book" method="POST">
-
-        <label>Select Slot:</label>
-<label>Vehicle Number:</label>
-<input type="text" name="vehicle_number" required>
-
-<br><br>
-
-<label>Select Slot:</label>
-
-<select name="slot_id">
+<div class="slots">
 
 {% for slot in slots %}
+<div class="card">
+
+    <h2>{{ slot[1] }}</h2>
+
     {% if slot[2] == "Available" %}
-        <option value="{{ slot[0] }}">
-            {{ slot[1] }}
-        </option>
+        <h3 class="available">{{ slot[2] }}</h3>
+    {% else %}
+        <h3 class="booked">{{ slot[2] }}</h3>
     {% endif %}
+
+ <form action="/book" method="POST">
+
+    <input
+        type="text"
+        name="vehicle_number"
+        placeholder="Enter Vehicle Number"
+        required>
+
+    <input
+        type="hidden"
+        name="slot_id"
+        value="{{ slot[0] }}">
+
+    <button type="submit">
+        Book Slot
+    </button>
+
+</form>
+
+</div>
 {% endfor %}
 
-</select>
-
-        <br><br>
-
-        <button type="submit">
-            Book Slot
-        </button>
-
-    </form>
-
-    <br><br>
-
-    <a href="/admin">
-        Go to Admin Dashboard
-    </a>
+</div>
 
 </body>
 </html>

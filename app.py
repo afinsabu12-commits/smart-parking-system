@@ -1,8 +1,32 @@
+import boto3
+from flask import Flask, render_template, request
+from flask_mysqldb import MySQL
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+s3 = boto3.client(
+    's3',
+   
+)
+
+BUCKET_NAME = 'smart-parking-afin'
+
 from flask import Flask, render_template, request
 from flask_mysqldb import MySQL
 
-app = Flask(__name__)
 
+app = Flask(__name__)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["100 per hour"]
+)
+@app.after_request
+def security_headers(response):
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'afin@123'
@@ -35,12 +59,9 @@ def book():
     cur = mysql.connection.cursor()
 
     cur.execute(
-        """
-        INSERT INTO bookings(user_id, slot_id, vehicle_number)
-        VALUES(%s,%s,%s)
-        """,
-        (1, slot_id, vehicle_number)
-    )
+    "INSERT INTO bookings (slot_id, vehicle_number) VALUES (%s,%s)",
+    (slot_id, vehicle_number)
+)
 
     cur.execute(
         "UPDATE parking_slots SET status='Booked' WHERE id=%s",
@@ -76,8 +97,7 @@ def admin():
 
     cur = mysql.connection.cursor()
 
-    cur.execute("SELECT * FROM users")
-    users = cur.fetchall()
+    users = []
 
     cur.execute("SELECT * FROM parking_slots")
     slots = cur.fetchall()
@@ -160,4 +180,4 @@ def history():
         history=history
     )
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
